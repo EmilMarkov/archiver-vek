@@ -30,16 +30,6 @@ export const Container = styled.div<ContainerProps>`
     background-color: ${props => (props.selected ? props.theme.colors.background : props.theme.colors.background_3)};
     color: ${props => (props.selected ? props.theme.colors.color_1 : props.theme.colors.color)};
   }
-
-  &.dragging {
-    background-color: #0078d4;
-    color: white;
-  }
-
-  &.shiftSelected {
-    background-color: #0078d4;
-    color: white;
-  }
 `;
 
 export const FileName = styled.div`

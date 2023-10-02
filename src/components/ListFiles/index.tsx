@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import FileItem from '../FileItem';
+import ContextMenu from '../ContextMenu';
 
 import {
   Props,
@@ -22,7 +23,10 @@ const ListFiles: React.FC<Props> = ({ entries }) => {
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
     const [isDragging, setDragging] = useState(false);
     const listContainerRef = useRef<HTMLDivElement | null>(null);
+    const contextMenuConteinerRef = useRef<HTMLDivElement | null>(null);
     const [startSelectionIndex, setStartSelectionIndex] = useState<number | null>(null);
+    const [contextMenuOpen, setContextMenuOpen] = useState(false);
+    const [contextMenuPosition, setContextMenuPosition] = useState({ top: 0, left: 0 });
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -35,9 +39,30 @@ const ListFiles: React.FC<Props> = ({ entries }) => {
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        const handleDocumentClick = (e: MouseEvent) => {
+            if (contextMenuOpen) {
+                const contextMenu = document.getElementById('context-menu');
+                if (contextMenu && !contextMenu.contains(e.target as Node)) {
+                    setContextMenuOpen(false);
+                }
+            }
+        };
+      
+        document.addEventListener('click', handleDocumentClick);
+        return () => document.removeEventListener('click', handleDocumentClick);
+    }, [contextMenuOpen]);
+
     const handleMouseDown = (index: number) => (e: React.MouseEvent) => {
         e.preventDefault();
-        if (e.ctrlKey) {
+        if (e.button === 2) {
+            if (!selectedItems.includes(index)) {
+                setSelectedItems([index]);
+            }
+            setContextMenuOpen(true);
+            setContextMenuPosition({ top: e.clientY, left: e.clientX });
+        }
+        else if (e.ctrlKey) {
             if (selectedItems.includes(index)) {
                 const newSelectedItems = selectedItems.filter((i) => i !== index);
                 setSelectedItems(newSelectedItems);
@@ -66,6 +91,10 @@ const ListFiles: React.FC<Props> = ({ entries }) => {
         setDragging(true);
     };
 
+    const handleContextMenuClose = () => {
+        setContextMenuOpen(false);
+    };
+
     const handleMouseEnter = (index: number) => (e: React.MouseEvent) => {
         if (isDragging && startSelectionIndex !== null) {
             const minIndex = Math.min(startSelectionIndex, index);
@@ -88,6 +117,7 @@ const ListFiles: React.FC<Props> = ({ entries }) => {
             {entries.map((item, index) => (
                 <li
                     key={index}
+                    onContextMenu={(e) => e.preventDefault()}
                     className={`FileItem ${
                         selectedItems.includes(index) ? 'shiftSelected' : ''
                     } ${isDragging ? 'dragging' : ''}`}
@@ -104,6 +134,11 @@ const ListFiles: React.FC<Props> = ({ entries }) => {
                     />
                 </li>
             ))}
+            <ContextMenu
+                isOpen={contextMenuOpen}
+                position={contextMenuPosition}
+                onClose={handleContextMenuClose}
+            />
         </Container>
     );
 };
