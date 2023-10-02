@@ -1,51 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Container, Props } from './styles'
-import FileItem from '../../../FileItem'  // Импортируйте компонент FileItem
+import FileItem from '../../../FileItem'
+import ListFiles from '../../../ListFiles'
 import { SvgIconPlus, SvgIconReload } from '../../../SvgIcon'
 import usePersistedState from '../../../../utils/userPersistedState'
 import { DefaultTheme } from 'styled-components'
 import { Settings } from '../../../../Settings'
 import { invoke } from '@tauri-apps/api';
 
+import {
+    FileEntry,
+    FolderEntry,
+    Entry
+} from './styles';
+
 const FileManagerPage: React.FC<Props> = ({pageName, visible}) => {
-    interface FileEntry {
-        path: string;
-        name: string;
-        size: string;
-        created_at: string;
-    }
-      
-    interface FolderEntry {
-        path: string;
-        name: string;
-        created_at: string;
-    }
-
-    interface Entry {
-        path: string;
-        name: string;
-        size: string;
-        created_at: string;
-        type: 'file' | 'folder';
-    }
-
-    // Set useContext
     const [ theme, setTheme ] = usePersistedState<DefaultTheme>('theme', Settings.appDefaultTheme)
     const [ files, setFiles ] = useState<FileEntry[]>([])
     const [ folders, setFolders ] = useState<FolderEntry[]>([])
     const [entries, setEntries] = useState<Entry[]>([]);
-
-    function formatFileSize(size: number): string {
-        if (size < 1024) {
-          return size + ' B';
-        } else if (size < 1024 * 1024) {
-          return (size / 1024).toFixed(2) + ' KB';
-        } else if (size < 1024 * 1024 * 1024) {
-          return (size / (1024 * 1024)).toFixed(2) + ' MB';
-        } else {
-          return (size / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
-        }
-    }
 
     async function scanFiles() {
         try {
@@ -109,15 +82,7 @@ const FileManagerPage: React.FC<Props> = ({pageName, visible}) => {
         <Container className={`app-container-column ${visible ? "" : "hide-page"}`}>
             <section className="app-section flex-1">
                 <ul>
-                    {entries.map((item, index) => (
-                        <li key={index}>
-                            <FileItem
-                                name={item.name}
-                                creationDate={item.created_at}
-                                size={item.type === 'folder' ? '--' : formatFileSize(parseInt(item.size))}
-                            />
-                        </li>
-                    ))}
+                    <ListFiles entries={entries} />
                 </ul>
             </section>
         </Container>
