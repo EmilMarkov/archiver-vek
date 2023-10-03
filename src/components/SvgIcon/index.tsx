@@ -210,6 +210,18 @@ export const SvgIconLogo: React.FC<Props> = ({size, color})=>{
     )
 }
 
+export const SvgIconUp: React.FC<Props> = ({size, color})=>{
+    const { colors } = useContext(ThemeContext)
+    var iconColor = colors.appIconColor
+    if(color) iconColor = color
+
+    return(
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width={size} height={size} fill={iconColor} viewBox="0 0 10 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
+        </svg>
+    )
+}
+
 export default {
     components: {
         SvgIconMenuOpened,
@@ -230,6 +242,7 @@ export default {
         SvgIconReload,
         SvgIconNotification,
         SvgIconFolder,
-        SvgIconLogo
+        SvgIconLogo,
+        SvgIconUp
     }
 }

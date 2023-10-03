@@ -23,6 +23,7 @@ export interface Entry {
 
 export interface Props {
   entries: Entry[];
+  onItemDoubleClick: (index: number) => void;
 }
 
 export const Container = styled.div`
@@ -50,7 +51,7 @@ export const FileName = styled.div`
   }
 `
 
-export const CreationDate = styled.div`
+export const CreatedAt = styled.div`
   & {
     text-align: left;
     flex: 1;
@@ -83,4 +84,27 @@ export const ResizeHandle = styled.div`
     background-color: ${props => props.theme.colors.color_1}; // Цвет полоски изменения
     margin-right: 5px;
   }
+`
+
+export const ListContainer = styled.div`
+    & {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: calc(100vh - 220px);
+        overflow-y: auto;
+    }
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: ${props => props.theme.colors.accentColor};
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: ${props => props.theme.colors.accentColor_dark};
+    }
 `

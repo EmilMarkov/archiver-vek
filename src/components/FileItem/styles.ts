@@ -6,6 +6,7 @@ export interface Props {
   name: string;
   creationDate: string;
   size: string;
+  type: string;
   selected: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseEnter: (e: React.MouseEvent) => void;

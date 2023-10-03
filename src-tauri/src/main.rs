@@ -3,24 +3,34 @@
 
 use tauri::{Manager};
 use settimeout::set_timeout;
-use window_shadows::set_shadow;
 use std::{time::Duration};
+use tauri::api::path;
+use std::path::{Path, PathBuf};
 
 // Import App Modules
 mod app_modules;
 use app_modules::file_manager::{FileEntry, FolderEntry, FileManager};
 
 #[tauri::command]
-async fn scan_files() -> Result<Vec<FileEntry>, String> {
-    let result = async_scan_files().await;
+async fn get_home_dir() -> Result<PathBuf, String> {
+    match path::home_dir() {
+        Some(dir) => Ok(dir),
+        None => Err("Failed to get home directory".to_string()),
+    }
+}
+
+#[tauri::command]
+async fn scan_files(path: String) -> Result<Vec<FileEntry>, String> {
+    println!("{}", path);
+    let result = async_scan_files(&path).await;
     match result {
         Ok(file_entries) => Ok(file_entries),
         Err(error) => Err(error.to_string()),
     }
 }
 
-async fn async_scan_files() -> Result<Vec<FileEntry>, Box<dyn std::error::Error>> {
-    let root_path = std::env::current_dir()?;
+async fn async_scan_files(path: &str) -> Result<Vec<FileEntry>, Box<dyn std::error::Error>> {
+    let root_path = PathBuf::from(path);
     let file_manager = FileManager::new(root_path)?;
 
     let file_entries: Vec<FileEntry> = file_manager.list_files().to_vec();
@@ -29,16 +39,16 @@ async fn async_scan_files() -> Result<Vec<FileEntry>, Box<dyn std::error::Error>
 }
 
 #[tauri::command]
-async fn scan_folders() -> Result<Vec<FolderEntry>, String> {
-    let result = async_scan_folders().await;
+async fn scan_folders(path: String) -> Result<Vec<FolderEntry>, String> {
+    let result = async_scan_folders(&path).await;
     match result {
         Ok(folder_entries) => Ok(folder_entries),
         Err(error) => Err(error.to_string()),
     }
 }
 
-async fn async_scan_folders() -> Result<Vec<FolderEntry>, Box<dyn std::error::Error>> {
-    let root_path = std::env::current_dir()?;
+async fn async_scan_folders(path: &str) -> Result<Vec<FolderEntry>, Box<dyn std::error::Error>> {
+    let root_path = PathBuf::from(path);
     let file_manager = FileManager::new(root_path)?;
 
     let folder_entries: Vec<FolderEntry> = file_manager.list_folders().to_vec();
@@ -71,7 +81,8 @@ fn main() {
             close_splashscreen,
             set_window_shadow,
             scan_files,
-            scan_folders
+            scan_folders,
+            get_home_dir
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

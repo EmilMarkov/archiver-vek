@@ -5,6 +5,7 @@ const FileItem: React.FC<Props> = ({
     name,
     creationDate,
     size,
+    type,
     selected,
     onMouseDown,
     onMouseEnter,
