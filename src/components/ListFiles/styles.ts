@@ -18,22 +18,25 @@ export interface Entry {
   name: string;
   size: string;
   created_at: string;
-  type: 'file' | 'folder';
+  type: 'file' | 'folder' | 'disk';
 }
 
 export interface Props {
   entries: Entry[];
   onItemDoubleClick: (index: number) => void;
+  isPathDisk: boolean;
 }
 
 export const Container = styled.div`
   & {
-    
+    width: 100%;
+    height: 100%;
   }
 `
 
 export const InfoBar = styled.div`
   & {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     font-size: 16px;
@@ -41,7 +44,7 @@ export const InfoBar = styled.div`
   }
 `
 
-export const FileName = styled.div`
+export const Left = styled.div`
   & {
     width: 60%;
     text-align: left;
@@ -51,14 +54,14 @@ export const FileName = styled.div`
   }
 `
 
-export const CreatedAt = styled.div`
+export const Center = styled.div`
   & {
     text-align: left;
     flex: 1;
   }
 `
 
-export const FileSize = styled.div`
+export const Right = styled.div`
   & {
     text-align: right;
   }
@@ -79,9 +82,9 @@ export const DivLine = styled.div`
 
 export const ResizeHandle = styled.div`
   & {
-    width: 2px; // Ширина полоски изменения
-    cursor: col-resize; // Стиль курсора для указания, что можно менять ширину
-    background-color: ${props => props.theme.colors.color_1}; // Цвет полоски изменения
+    width: 2px;
+    cursor: col-resize;
+    background-color: ${props => props.theme.colors.color_1};
     margin-right: 5px;
   }
 `
@@ -91,7 +94,8 @@ export const ListContainer = styled.div`
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        height: calc(100vh - 220px);
+        height: 100%;
+        padding-bottom: 20px;
         overflow-y: auto;
     }
 

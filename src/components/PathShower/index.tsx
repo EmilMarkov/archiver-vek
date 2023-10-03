@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 
+let sep: string;
+
+if (navigator.appVersion.indexOf('Win') !== -1) {
+    sep = '\\';
+} else {
+    sep = '/';
+}
+
 import {
     Props,
     Container,
@@ -19,10 +27,10 @@ const PathShower: React.FC<Props> = ({
 }) => {
     const svgIconUp = <SvgIconUp size={'16'} />
 
-    const pathParts = path.split('/');
+    const pathParts = path.split(sep);
 
     const handleNavigate = (index: number) => {
-        const newPath = pathParts.slice(0, index + 1).join('/');
+        const newPath = pathParts.slice(0, index + 1).join(sep);
         onNavigate(newPath);
     };
 

@@ -6,10 +6,25 @@ use settimeout::set_timeout;
 use std::{time::Duration};
 use tauri::api::path;
 use std::path::{Path, PathBuf};
+use sysinfo::{DiskExt, System, SystemExt};
 
 // Import App Modules
 mod app_modules;
 use app_modules::file_manager::{FileEntry, FolderEntry, FileManager};
+
+#[tauri::command]
+fn get_all_disks() -> Vec<(String, u64, u64)> {
+    let mut sys = System::new_all();
+    sys.refresh_all();
+    let mut disks = Vec::new();
+    for disk in sys.disks() {
+        let name = disk.mount_point().to_string_lossy().to_string();
+        let total_space = disk.total_space() / 1_000_000_000;
+        let available_space = disk.available_space() / 1_000_000_000;
+        disks.push((name, total_space, available_space));
+    }
+    disks
+}
 
 #[tauri::command]
 async fn get_home_dir() -> Result<PathBuf, String> {
@@ -21,7 +36,6 @@ async fn get_home_dir() -> Result<PathBuf, String> {
 
 #[tauri::command]
 async fn scan_files(path: String) -> Result<Vec<FileEntry>, String> {
-    println!("{}", path);
     let result = async_scan_files(&path).await;
     match result {
         Ok(file_entries) => Ok(file_entries),
@@ -69,20 +83,18 @@ async fn close_splashscreen(window: tauri::Window) {
     window.get_window("main").unwrap().show().unwrap();
 }
 
-#[tauri::command]
-async fn set_window_shadow(window: tauri::Window) {
-    #[cfg(any(windows, target_os = "windows"))]
-    set_shadow(&window, true).unwrap();
-}
-
 fn main() {
+    let disks = get_all_disks();
+    for disk in disks {
+        println!("{:#?}", disk);
+    }
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             close_splashscreen,
-            set_window_shadow,
             scan_files,
             scan_folders,
-            get_home_dir
+            get_home_dir,
+            get_all_disks
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -6,9 +6,9 @@ import {
     Props,
     Container,
     InfoBar,
-    FileName,
-    CreatedAt,
-    FileSize,
+    Left,
+    Center,
+    Right,
     DivLine,
     ResizeHandle,
     ListContainer
@@ -28,7 +28,7 @@ function formatFileSize(size: number): string {
     return `${formattedSize} ${units[unitIndex]}`;
 }  
 
-const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick }) => {
+const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) => {
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
     const [isDragging, setDragging] = useState(false);
     const listContainerRef = useRef<HTMLDivElement | null>(null);
@@ -42,7 +42,7 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick }) => {
     const formattedEntries = useMemo(() => {
         return entries.map((item) => ({
             ...item,
-            size: item.type === 'folder' ? '--' : formatFileSize(parseInt(item.size))
+            size: item.type === 'folder' ? '--' : (item.type === 'disk' ? `${parseInt(item.size)} GB` : formatFileSize(parseInt(item.size))),
         }));
     }, [entries]);
 
@@ -152,7 +152,16 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick }) => {
     return (
         <Container ref={listContainerRef} onMouseUp={handleMouseUp}>
             <InfoBar>
-                {/* ... остальной код ... */}
+                <Left style={{ width: `${fileNameWidth}%` }}>
+                    {isPathDisk ? "Disk Name" : "File Name"}
+                </Left>
+                <ResizeHandle onMouseDown={handleResizeMouseDown} />
+                <Center>
+                    {isPathDisk ? "Available Size" : "Created At"}
+                </Center>
+                <Right>
+                    {isPathDisk ? "Free Size" : "File Size"}
+                </Right>
             </InfoBar>
             <DivLine />
             <ListContainer>

@@ -21,6 +21,7 @@ window-shadows = "0.2.1"
 chrono = "0.4.24"
 once_cell = "1.17.2"
 dirs = "3"
+sysinfo = "0.29.10"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

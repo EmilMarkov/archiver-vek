@@ -23,7 +23,7 @@ export interface Entry {
     name: string;
     size: string;
     created_at: string;
-    type: 'file' | 'folder';
+    type: 'file' | 'folder' | 'disk';
 }
 
 export const Container = styled.div`
