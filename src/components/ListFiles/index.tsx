@@ -1,146 +1,182 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import FileItem from '../FileItem';
 import ContextMenu from '../ContextMenu';
 
 import {
   Props,
-  Container
+  Container,
+  InfoBar,
+  FileName,
+  CreationDate,
+  FileSize,
+  DivLine,
+  ResizeHandle
 } from './styles';
 
 function formatFileSize(size: number): string {
-  if (size < 1024) {
-    return size + ' B';
-  } else if (size < 1024 * 1024) {
-    return (size / 1024).toFixed(2) + ' KB';
-  } else if (size < 1024 * 1024 * 1024) {
-    return (size / (1024 * 1024)).toFixed(2) + ' MB';
-  } else {
-    return (size / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
   }
+
+  return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
 
 const ListFiles: React.FC<Props> = ({ entries }) => {
-    const [selectedItems, setSelectedItems] = useState<number[]>([]);
-    const [isDragging, setDragging] = useState(false);
-    const listContainerRef = useRef<HTMLDivElement | null>(null);
-    const contextMenuConteinerRef = useRef<HTMLDivElement | null>(null);
-    const [startSelectionIndex, setStartSelectionIndex] = useState<number | null>(null);
-    const [contextMenuOpen, setContextMenuOpen] = useState(false);
-    const [contextMenuPosition, setContextMenuPosition] = useState({ top: 0, left: 0 });
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [isDragging, setDragging] = useState(false);
+  const listContainerRef = useRef<HTMLDivElement | null>(null);
+  const [startSelectionIndex, setStartSelectionIndex] = useState<number | null>(null);
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ top: 0, left: 0 });
+  const [fileNameWidth, setFileNameWidth] = useState(60);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeStartX, setResizeStartX] = useState(0);
 
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (listContainerRef.current && !listContainerRef.current.contains(e.target as Node)) {
-                setSelectedItems([]);
-            }
-        };
+  const formattedEntries = useMemo(() => {
+    return entries.map((item) => ({
+      ...item,
+      size: item.type === 'folder' ? '--' : formatFileSize(parseInt(item.size))
+    }));
+  }, [entries]);
 
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (listContainerRef.current && !listContainerRef.current.contains(e.target as Node)) {
+        setSelectedItems([]);
+      }
+    };
 
-    useEffect(() => {
-        const handleDocumentClick = (e: MouseEvent) => {
-            if (contextMenuOpen) {
-                const contextMenu = document.getElementById('context-menu');
-                if (contextMenu && !contextMenu.contains(e.target as Node)) {
-                    setContextMenuOpen(false);
-                }
-            }
-        };
-      
-        document.addEventListener('click', handleDocumentClick);
-        return () => document.removeEventListener('click', handleDocumentClick);
-    }, [contextMenuOpen]);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
-    const handleMouseDown = (index: number) => (e: React.MouseEvent) => {
-        e.preventDefault();
-        if (e.button === 2) {
-            if (!selectedItems.includes(index)) {
-                setSelectedItems([index]);
-            }
-            setContextMenuOpen(true);
-            setContextMenuPosition({ top: e.clientY, left: e.clientX });
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      if (contextMenuOpen) {
+        const contextMenu = document.getElementById('context-menu');
+        if (contextMenu && !contextMenu.contains(e.target as Node)) {
+          setContextMenuOpen(false);
         }
-        else if (e.ctrlKey) {
-            if (selectedItems.includes(index)) {
-                const newSelectedItems = selectedItems.filter((i) => i !== index);
-                setSelectedItems(newSelectedItems);
-            } else {
-                setSelectedItems([...selectedItems, index]);
-            }
-        } else if (e.shiftKey) {
-            const lastSelectedItemIndex = selectedItems[selectedItems.length - 1];
-            if (lastSelectedItemIndex !== undefined) {
-                const minIndex = Math.min(lastSelectedItemIndex, index);
-                const maxIndex = Math.max(lastSelectedItemIndex, index);
-                const newSelectedItems = Array.from(
-                    { length: maxIndex - minIndex + 1 },
-                    (_, i) => minIndex + i
-                );
-                setSelectedItems(newSelectedItems);
-                return;
-            } else {
-                setSelectedItems([index]);
-                setStartSelectionIndex(index);
-            }
-        } else {
-            setSelectedItems([index]);
-            setStartSelectionIndex(index);
-        }
-        setDragging(true);
+      }
     };
 
-    const handleContextMenuClose = () => {
-        setContextMenuOpen(false);
-    };
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, [contextMenuOpen]);
 
-    const handleMouseEnter = (index: number) => (e: React.MouseEvent) => {
-        if (isDragging && startSelectionIndex !== null) {
-            const minIndex = Math.min(startSelectionIndex, index);
-            const maxIndex = Math.max(startSelectionIndex, index);
-            const newSelectedItems = Array.from(
-                { length: maxIndex - minIndex + 1 },
-                (_, i) => minIndex + i
-            );
-            setSelectedItems(newSelectedItems);
-        }
-    };
-           
+  const handleMouseDown = (index: number) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (e.button === 2) {
+      if (!selectedItems.includes(index)) {
+        setSelectedItems([index]);
+      }
+      setContextMenuOpen(true);
+      setContextMenuPosition({ top: e.clientY, left: e.clientX });
+    } else if (e.ctrlKey) {
+      if (selectedItems.includes(index)) {
+        setSelectedItems(selectedItems.filter((i) => i !== index));
+      } else {
+        setSelectedItems([...selectedItems, index]);
+      }
+    } else if (e.shiftKey) {
+      if (startSelectionIndex !== null) {
+        const minIndex = Math.min(startSelectionIndex, index);
+        const maxIndex = Math.max(startSelectionIndex, index);
+        setSelectedItems(Array.from({ length: maxIndex - minIndex + 1 }, (_, i) => minIndex + i));
+      } else {
+        setSelectedItems([index]);
+        setStartSelectionIndex(index);
+      }
+    } else {
+      setSelectedItems([index]);
+      setStartSelectionIndex(index);
+    }
+    setDragging(true);
+  };
 
-    const handleMouseUp = () => {
-        setDragging(false);
-    };
+  const handleContextMenuClose = () => {
+    setContextMenuOpen(false);
+  };
 
-    return (
-        <Container ref={listContainerRef} onMouseUp={handleMouseUp}>
-            {entries.map((item, index) => (
-                <li
-                    key={index}
-                    onContextMenu={(e) => e.preventDefault()}
-                    className={`FileItem ${
-                        selectedItems.includes(index) ? 'shiftSelected' : ''
-                    } ${isDragging ? 'dragging' : ''}`}
-                >
-                    <FileItem
-                        name={item.name}
-                        creationDate={item.created_at}
-                        size={
-                            item.type === 'folder' ? '--' : formatFileSize(parseInt(item.size))
-                        }
-                        selected={selectedItems.includes(index)}
-                        onMouseDown={handleMouseDown(index)}
-                        onMouseEnter={handleMouseEnter(index)}
-                    />
-                </li>
-            ))}
-            <ContextMenu
-                isOpen={contextMenuOpen}
-                position={contextMenuPosition}
-                onClose={handleContextMenuClose}
-            />
-        </Container>
-    );
+  const handleMouseEnter = (index: number) => (e: React.MouseEvent) => {
+    if (isDragging && startSelectionIndex !== null && selectedItems.length > 0) {
+      const minIndex = Math.min(startSelectionIndex, index);
+      const maxIndex = Math.max(startSelectionIndex, index);
+      setSelectedItems(Array.from({ length: maxIndex - minIndex + 1 }, (_, i) => minIndex + i));
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    setResizeStartX(e.clientX);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isResizing) {
+      const deltaX = e.clientX - resizeStartX;
+      const newWidth = fileNameWidth + (deltaX / window.innerWidth) * 100;
+      const clampedWidth = Math.min(60, Math.max(20, newWidth));
+      setFileNameWidth(clampedWidth);
+    }
+  };
+
+  const handleMouseUpResize = () => {
+    setIsResizing(false);
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUpResize);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUpResize);
+    };
+  }, [isResizing]);
+
+  return (
+    <Container ref={listContainerRef} onMouseUp={handleMouseUp}>
+      <InfoBar>
+        <FileName style={{ width: `${fileNameWidth}%` }}>File Name</FileName>
+        <ResizeHandle onMouseDown={handleResizeMouseDown} />
+        <CreationDate>Creation Date</CreationDate>
+        <FileSize>File Size</FileSize>
+      </InfoBar>
+      <DivLine />
+      {formattedEntries.map((item, index) => (
+        <li
+          key={index}
+          onContextMenu={(e) => e.preventDefault()}
+          className={`FileItem ${selectedItems.includes(index) ? 'shiftSelected' : ''} ${
+            isDragging ? 'dragging' : ''
+          }`}
+        >
+          <FileItem
+            name={item.name}
+            creationDate={item.created_at}
+            size={item.size}
+            selected={selectedItems.includes(index)}
+            onMouseDown={handleMouseDown(index)}
+            onMouseEnter={handleMouseEnter(index)}
+            fileNameWidth={fileNameWidth}
+          />
+        </li>
+      ))}
+      <ContextMenu
+        isOpen={contextMenuOpen}
+        position={contextMenuPosition}
+        onClose={handleContextMenuClose}
+      />
+    </Container>
+  );
 };
 
 export default ListFiles;

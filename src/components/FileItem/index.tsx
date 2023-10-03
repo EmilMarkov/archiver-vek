@@ -8,6 +8,7 @@ const FileItem: React.FC<Props> = ({
     selected,
     onMouseDown,
     onMouseEnter,
+    fileNameWidth
 }) => {
     const handleMouseDown = (e: React.MouseEvent) => {
         if (onMouseDown) {
@@ -27,7 +28,7 @@ const FileItem: React.FC<Props> = ({
             onMouseDown={handleMouseDown}
             onMouseEnter={handleMouseEnter}
         >
-            <FileName>{name}</FileName>
+            <FileName style={{ width: `${fileNameWidth}%` }}>{name}</FileName>
             <FileCreationDate>{creationDate}</FileCreationDate>
             <FileSize>{size}</FileSize>
         </Container>

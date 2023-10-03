@@ -9,6 +9,7 @@ export interface Props {
   selected: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseEnter: (e: React.MouseEvent) => void;
+  fileNameWidth: number;
 }
 
 export interface ContainerProps {
@@ -43,6 +44,7 @@ export const FileName = styled.div`
 export const FileCreationDate = styled.div`
   text-align: left;
   flex: 1;
+  margin-left: 5px;
 `;
 
 export const FileSize = styled.div`

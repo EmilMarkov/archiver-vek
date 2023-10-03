@@ -1,6 +1,6 @@
 import React from 'react'
 import { Content, Props } from './styles'
-import HomePage from './pages/File Manager'
+import HomePage from './pages/FileManager'
 import AboutPage from './pages/About'
 import SettingsPage from './pages/Settings'
 
