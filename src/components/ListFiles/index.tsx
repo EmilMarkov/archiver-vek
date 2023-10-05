@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import FileItem from '../FileItem';
 import ContextMenu from '../ContextMenu';
+import Modals from '../modals';
 import { Settings } from '../../Settings';
 
 import {
@@ -30,16 +31,26 @@ function formatFileSize(size: number): string {
 }  
 
 const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) => {
+    /** US_ListFiles */
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
-    const [isDragging, setDragging] = useState(false);
-    const listContainerRef = useRef<HTMLDivElement | null>(null);
-    const [startSelectionIndex, setStartSelectionIndex] = useState<number | null>(null);
+    const [fileNameWidth, setFileNameWidth] = useState(60);
+
+    /** US_ContextMenu */
     const [contextMenuOpen, setContextMenuOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ top: 0, left: 0 });
-    const [fileNameWidth, setFileNameWidth] = useState(60);
+
+    /** US_Modals */
+    const [selectedModal, setSelectedModal] = useState<string | null>(null);
+
+    /** US_MouseEvents */
+    const [isDragging, setDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [resizeStartX, setResizeStartX] = useState(0);
+    const [startSelectionIndex, setStartSelectionIndex] = useState<number | null>(null);
 
+    /* =============================================================================== */
+
+    /** $Entries */
     const formattedEntries = useMemo(() => {
         return entries.map((item) => ({
             ...item,
@@ -55,31 +66,9 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) 
         }
     }, [formattedEntries]);
 
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (listContainerRef.current && !listContainerRef.current.contains(e.target as Node)) {
-                setSelectedItems([]);
-            }
-        };
+    /* =============================================================================== */
 
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        const handleDocumentClick = (e: MouseEvent) => {
-            if (contextMenuOpen) {
-                const contextMenu = document.getElementById('context-menu');
-                if (contextMenu && !contextMenu.contains(e.target as Node)) {
-                    setContextMenuOpen(false);
-                }
-            }
-        };
-
-        document.addEventListener('click', handleDocumentClick);
-        return () => document.removeEventListener('click', handleDocumentClick);
-    }, [contextMenuOpen]);
-
+    /** $MouseEvents */
     const handleMouseDown = (index: number) => (e: React.MouseEvent) => {
         e.preventDefault();
         if (e.button === 2) {
@@ -108,10 +97,6 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) 
             setStartSelectionIndex(index);
         }
         setDragging(true);
-    };
-
-    const handleContextMenuClose = () => {
-        setContextMenuOpen(false);
     };
 
     const handleMouseEnter = (index: number) => (e: React.MouseEvent) => {
@@ -145,6 +130,41 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) 
         setIsResizing(false);
     };    
 
+    /* =============================================================================== */
+
+    /** $HandleFunctions */
+    const handleItemDoubleClick = (index: number) => {
+        onItemDoubleClick(index);
+    };
+
+    const handleOpenModal = (modalName: string) => {
+        setSelectedModal(modalName);
+        setContextMenuOpen(false);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedModal(null);
+    };
+
+    /* =============================================================================== */
+
+    /** UseEffects */
+    useEffect(() => {
+        const handleDocumentClick = (e: MouseEvent) => {
+            const contextMenu = document.getElementById('context-menu');
+            const listContainer = document.getElementById('list-container');
+            if (contextMenu && !contextMenu.contains(e.target as Node)) {
+                setContextMenuOpen(false);
+            }
+            if (listContainer && !listContainer.contains(e.target as Node)) {
+                setSelectedItems([]);
+            }
+        };
+
+        document.addEventListener('click', handleDocumentClick);
+        return () => document.removeEventListener('click', handleDocumentClick);
+    }, [contextMenuOpen]);
+
     useEffect(() => {
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUpResize);
@@ -154,12 +174,10 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) 
         };
     }, [isResizing]);
 
-    const handleItemDoubleClick = (index: number) => {
-        onItemDoubleClick(index);
-    };
+    /* =============================================================================== */
 
     return (
-        <Container ref={listContainerRef} onMouseUp={handleMouseUp}>
+        <Container onMouseUp={handleMouseUp}>
             <InfoBar>
                 <Left style={{ width: `${fileNameWidth}%` }}>
                     {isPathDisk ? "Disk Name" : "File Name"}
@@ -173,33 +191,38 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) 
                 </Right>
             </InfoBar>
             <DivLine />
-            <ListContainer>
+            <ListContainer id='list-container'>
                 {filteredEntries.map((item, index) => (
-                        <li
-                            key={item.id}
-                            onContextMenu={(e) => e.preventDefault()}
-                            className={`FileItem ${selectedItems.includes(index) ? 'shiftSelected' : ''} ${
-                                isDragging ? 'dragging' : ''
-                            }`}
-                            onDoubleClick={() => handleItemDoubleClick(item.id)}
-                        >
-                            <FileItem
-                                name={item.name}
-                                creationDate={item.created_at}
-                                size={item.size}
-                                selected={selectedItems.includes(index)}
-                                onMouseDown={handleMouseDown(index)}
-                                onMouseEnter={handleMouseEnter(index)}
-                                fileNameWidth={fileNameWidth}
-                                type={item.type}
-                            />
-                        </li>
-                    ))}
+                    <li
+                        key={item.id}
+                        onContextMenu={(e) => e.preventDefault()}
+                        className={`FileItem ${selectedItems.includes(index) ? 'shiftSelected' : ''} ${
+                            isDragging ? 'dragging' : ''
+                        }`}
+                        onDoubleClick={() => handleItemDoubleClick(item.id)}
+                    >
+                        <FileItem
+                            name={item.name}
+                            creationDate={item.created_at}
+                            size={item.size}
+                            selected={selectedItems.includes(index)}
+                            onMouseDown={handleMouseDown(index)}
+                            onMouseEnter={handleMouseEnter(index)}
+                            fileNameWidth={fileNameWidth}
+                            type={item.type}
+                        />
+                    </li>
+                ))}
             </ListContainer>
             <ContextMenu
                 isOpen={contextMenuOpen}
                 position={contextMenuPosition}
-                onClose={handleContextMenuClose}
+                onOpenModal={handleOpenModal}
+            />
+            <Modals
+                setModal={selectedModal}
+                closeModal={handleCloseModal}
+                data={filteredEntries}
             />
         </Container>
     );

@@ -155,7 +155,6 @@ function App() {
             <Pagination
               setPage={pageName}
             />
-
             {/* Footer */}
             <footer className='footer'>
               <div className='left'>{Settings.appDeveloperCredits}</div>

@@ -41,16 +41,15 @@ export const Button = styled.button<Props>`
         background-color: ${props => props.colorHover};
     }
     & svg {
-        transition: 0.25s;
-        filter: ${props => props.isActive ? props => 'brightness(500%)' : 'none'};
+        filter: brightness(5);
     }
     &:hover svg {
-        filter: ${props => props.highlightIcon ? 'brightness(500%)' : 'none'} ;
+        filter: brightness(5);
     }
     &:active {
         background-color: ${props => props.colorPressed};
     }
     &:active svg {
-        filter: ${props => props.highlightIcon ? 'brightness(500%)' : 'none'} ;
+        filter: brightness(1);
     }
 `

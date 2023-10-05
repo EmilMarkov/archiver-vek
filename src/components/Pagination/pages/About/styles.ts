@@ -40,7 +40,7 @@ export const Container = styled.div`
         padding-bottom: 7px;
         text-align: right;
         color: ${props => props.theme.colors.color_1};
-        background-color: ${props => props.theme.colors.background_3};
+        background-color: ${props => props.theme.colors.background_1};
     }
     & .app-info-box .right {
         flex-basis: 60%;

@@ -45,10 +45,14 @@ export const PartButton = styled.div`
     justify-content: center;
     width: auto;
     height: 24px;
-    background-color: ${props => props.theme.colors.background};
+    background-color: ${props => props.theme.colors.background_2};
     border-radius: 6px;
     padding: 0 6px;
     margin: 0 3px;
+  }
+
+  &:hover {
+    cursor: pointer;
   }
 `;
 

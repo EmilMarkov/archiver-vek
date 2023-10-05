@@ -19,6 +19,7 @@ declare module 'styled-components' {
             background_4: string,
             background_5: string,
             background_6: string,
+            background_modal: string,
             // Buttons Colors
             buttonColor: string,
             buttonBgColor: string,

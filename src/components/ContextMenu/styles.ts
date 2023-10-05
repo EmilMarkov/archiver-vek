@@ -1,11 +1,20 @@
 import styled from 'styled-components';
 
+export interface Entry {
+  id: number;
+  path: string;
+  name: string;
+  size: string;
+  created_at: string;
+  type: 'file' | 'folder' | 'disk';
+}
+
 export interface Props {
-    id?: any;
-    ref?: any;
-    isOpen: boolean;
-    position: { top: number; left: number };
-    onClose: () => void;
+  id?: any;
+  ref?: any;
+  isOpen: boolean;
+  position: { top: number; left: number };
+  onOpenModal: (modalName: string) => void;
 }
 
 export const Container = styled.div`

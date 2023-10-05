@@ -76,10 +76,10 @@ export const Content = styled.header<Props>`
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        height: 22px;
-        max-height: 22px;
+        height: 28px;
+        max-height: 28px;
         border-radius: 10px;
-        margin: 2px;
+        line-height: 22px;
         color: ${props => props.theme.colors.color_2};
         padding-left: 10px;
         padding-right: 10px;

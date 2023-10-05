@@ -3,7 +3,8 @@ import { Props, Container } from './styles';
 import { ThemeContext } from 'styled-components'
 import TextRoundedButton from '../TextRoundedButton';
 
-const ContextMenu: React.FC<Props> = ({ isOpen, position, onClose }) => {
+const ContextMenu: React.FC<Props> = ({ isOpen, position, onOpenModal }) => {
+
     const theme = useContext(ThemeContext)
 
     if (!isOpen) {
@@ -13,7 +14,7 @@ const ContextMenu: React.FC<Props> = ({ isOpen, position, onClose }) => {
     return (
         <Container id="context-menu" style={{ top: position.top, left: position.left }}>
             <TextRoundedButton
-              onClick={() => { console.log('Clicked') }}
+              onClick={() => onOpenModal('archive') }
               title='Archive'
               width='100%'
               height='30px'

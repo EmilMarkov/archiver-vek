@@ -30,8 +30,12 @@ export interface Props {
 
 export const Container = styled.div`
   & {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     width: 100%;
     height: 100%;
+    padding: 6px;
   }
 `
 
@@ -41,7 +45,6 @@ export const InfoBar = styled.div`
     display: flex;
     justify-content: space-between;
     font-size: 16px;
-    padding: 6px;
   }
 `
 
@@ -70,12 +73,9 @@ export const Right = styled.div`
 
 export const DivLine = styled.div`
   & {
-    flex: 1;
-    max-height: 2px;
+    min-height: 2px;
     height: 2px;
     background-color: ${props => props.theme.colors.color_1};
-    margin-top: 5px;
-    margin-bottom: 5px;
     margin-left: 8px;
     margin-right: 8px;
   }
@@ -92,24 +92,22 @@ export const ResizeHandle = styled.div`
 
 export const ListContainer = styled.div`
     & {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        height: 100%;
-        padding-bottom: 20px;
-        overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      overflow-y: auto;
     }
 
     &::-webkit-scrollbar {
-        width: 4px;
+      width: 4px;
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: ${props => props.theme.colors.accentColor};
-        border-radius: 4px;
+      background-color: ${props => props.theme.colors.accentColor};
+      border-radius: 4px;
     }
 
     &::-webkit-scrollbar-thumb:hover {
-        background-color: ${props => props.theme.colors.accentColor_dark};
+      background-color: ${props => props.theme.colors.accentColor_dark};
     }
 `

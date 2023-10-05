@@ -113,8 +113,8 @@ const Header: React.FC<Props> = ({
                 title='Notification'
                 size='30px'
                 svgIcon={svgIconNotification}
-                colorDefault={theme.colors.background}
-                colorHover={theme.colors.buttonBgHover}
+                colorDefault={theme.colors.buttonColor}
+                colorHover={theme.title === 'dark' ? theme.colors.accentColor : shade(0.6, theme.colors.buttonBgHover)}
                 colorPressed={theme.colors.appColorYellow}
                 highlightIcon={true}
                 radius='8px'

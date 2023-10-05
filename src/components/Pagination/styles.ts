@@ -11,8 +11,8 @@ export const Content = styled.section<Props>`
         flex: 1;
         flex-basis: 100px;
         border-radius: 10px;
-        margin-right: 2px;
-        background-color: ${props => props.theme.colors.background_5};
+        margin-top: 5px;
+        background-color: ${props => props.theme.colors.background_2};
         overflow: hidden;
     }
 

@@ -18,8 +18,9 @@ export default {
         background_4: '#dddddd',
         background_5: '#e3e3e3',
         background_6: '#f8f8f8',
+        background_modal: 'rgba(193, 193, 193, 0.5)',
         // Buttons Colors
-        buttonColor: '#d7dce4',
+        buttonColor: '#c1c1c1',
         buttonBgColor: shade(0.35, '#62AEEF'),
         buttonBgHover: shade(0, '#62AEEF'),
         buttonBgPressed: '#E06B74',
