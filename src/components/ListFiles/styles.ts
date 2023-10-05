@@ -14,6 +14,7 @@ export interface FolderEntry {
 }
 
 export interface Entry {
+  id: number;
   path: string;
   name: string;
   size: string;

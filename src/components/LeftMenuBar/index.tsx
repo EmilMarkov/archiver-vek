@@ -18,23 +18,18 @@ const LeftMenuBar: React.FC<Props> = ({
     defaultPage,
     buttonsIconSize
 })=>{
-    // SvgIcons
     const svgIconMenuClosed = <SvgIconFolder size={'20'} />
 
-    // useRef
     const menu = useRef<HTMLElement>(null)
     const logoImg = useRef<HTMLImageElement>(null)
 
-    // Set useContext
     const theme = useContext(ThemeContext)
 
-    // Change Page
     function changePage(event: any){
         
         var page = event.target.getAttribute('page-name')
         var isActivated = event.target.getAttribute('is-ctivated')
 
-        // Remove selection
         if(menu.current && isActivated === 'true') {
             var btns = menu.current.querySelectorAll('a')
             btns.forEach(btn => {
@@ -42,12 +37,10 @@ const LeftMenuBar: React.FC<Props> = ({
             });
         }
 
-        // Select clicked btn
         if(isActivated === 'true'){
             event.target.setAttribute('class','menu-active')
         }
 
-        // Open page
         if(page){
             setPageName(page)
         }
@@ -78,7 +71,7 @@ const LeftMenuBar: React.FC<Props> = ({
                 </ul>
                 <ul className='bottom-menus'>
                     <li>
-                        <a className={defaultPage == 'about' ? 'menu-active' : ''} href="#" onClick={changePage} is-ctivated='true' title='About RTC' page-name='about'>
+                        <a className={defaultPage == 'about' ? 'menu-active' : ''} href="#" onClick={changePage} is-ctivated='true' title='About' page-name='about'>
                             <SvgIconInfo size={buttonsIconSize ? buttonsIconSize : '24'} />
                             <span>About</span>
                         </a>

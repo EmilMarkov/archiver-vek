@@ -12,16 +12,13 @@ import light from './styles/themes/light'
 const osType = await type()
 
 function SplashScreen() {
-    // Set useContext
     const [ theme, setTheme ] = usePersistedState<DefaultTheme>('theme', dark)
 
-    // useState
     const [percentage, setPercentage] = useState<number>(0)
     const [appLeftMenuLogo, setAppLeftMenuLogo] = useState(Settings.appLogo)
 
     useEffect(()=>{
         changeLogo() 
-        // Update preloader and show app
         if(percentage < 100){
             const timer = setInterval(()=>{        
                 setPercentage(Math.trunc(percentage + Settings.splashScreenUpdateSteps))
@@ -82,7 +79,6 @@ function SplashScreen() {
 
     return(
         <ThemeProvider theme={theme}>
-            {/* Global Styles */}
             <GlobalStyle /> 
 
             <div data-tauri-drag-region className='preloader-app'>

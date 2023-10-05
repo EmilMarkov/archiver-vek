@@ -63,4 +63,8 @@ export class Settings {
     static splashScreenUpdateMilliseconds: number = 40
     /** How many percents will Splash Screen update per update */
     static splashScreenUpdateSteps: number = 2
+
+    // FileManager
+    /** Showing hidden files in FileManager */
+    static isShowHiddenFolders: boolean = false
 }

@@ -4,8 +4,8 @@ export interface Props {
   id?: string;
   ref?: any;
   path: string;
-  onNavigate: (newPath: string) => void; // onNavigate принимает строку (новый путь)
-  onGoUp: () => void; // onGoUp не принимает аргументы
+  onNavigate: (newPath: string) => void;
+  onGoUp: () => void;
 }  
 
 export const Container = styled.div`

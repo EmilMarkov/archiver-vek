@@ -8,7 +8,6 @@ use tauri::api::path;
 use std::path::{Path, PathBuf};
 use sysinfo::{DiskExt, System, SystemExt};
 
-// Import App Modules
 mod app_modules;
 use app_modules::file_manager::{FileEntry, FolderEntry, FileManager};
 
@@ -84,10 +83,6 @@ async fn close_splashscreen(window: tauri::Window) {
 }
 
 fn main() {
-    let disks = get_all_disks();
-    for disk in disks {
-        println!("{:#?}", disk);
-    }
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             close_splashscreen,

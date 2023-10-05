@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ListFiles from '../../../ListFiles';
 import PathShower from '../../../PathShower';
+import { MD5 } from 'crypto-js';
 
 let sep: string;
 
@@ -20,14 +21,12 @@ import {
 
 import { invoke } from '@tauri-apps/api';
 
-// Определение интерфейса для данных дисков
 interface DiskData {
     diskPath: string;
     maxCapacity: number;
     minCapacity: number;
 }
 
-// Функция для получения списка дисков
 async function getAllDisks(): Promise<DiskData[]> {
     try {
         const disksData: Array<[string, number, number]> = await invoke('get_all_disks');
@@ -50,20 +49,17 @@ const FileManagerPage: React.FC<Props> = ({ pageName, visible }) => {
     const [isPathDisk, setIsPathDisk] = useState<boolean>(false);
 
     async function fetchData(path: string) {
-        console.log(path)
         try {
-            // Проверяем, если операционная система - Windows и путь представляет собой корень диска
             if (navigator.appVersion.indexOf('Win') !== -1 && path.endsWith(':')) {
-                // Добавляем обратный слеш к пути корня диска
                 path += '\\';
             }
             
             const filesResult: FileEntry[] = await invoke('scan_files', { path });
             const foldersResult: FolderEntry[] = await invoke('scan_folders', { path });
 
-            // Создаем массив, объединяя файлы и папки и добавляя тип
             const combinedEntries: Entry[] = [
                 ...foldersResult.map((folder) => ({
+                    id: parseInt(MD5(folder.path).toString().substring(0, 8), 16),
                     path: folder.path,
                     name: folder.name,
                     size: '--',
@@ -71,6 +67,7 @@ const FileManagerPage: React.FC<Props> = ({ pageName, visible }) => {
                     type: 'folder' as 'folder',
                 })),
                 ...filesResult.map((file) => ({
+                    id: parseInt(MD5(file.path).toString().substring(0, 8), 16),
                     path: file.path,
                     name: file.name,
                     size: file.size,
@@ -79,7 +76,6 @@ const FileManagerPage: React.FC<Props> = ({ pageName, visible }) => {
                 })),
             ];
 
-            // Устанавливаем объединенный массив и текущий путь в состояние
             setEntries(combinedEntries);
             setCurrentPath(path);
         } catch (error) {
@@ -104,14 +100,9 @@ const FileManagerPage: React.FC<Props> = ({ pageName, visible }) => {
             parts.pop();
         }
 
-        console.log(parts)
-
         if (parts[0] === '' && parts.length === 2) {
             parts.shift();
-            console.log(parts)
         }
-
-        console.log(parts)
 
         if (parts.length !== 1) {
             setIsPathDisk(false);
@@ -125,6 +116,7 @@ const FileManagerPage: React.FC<Props> = ({ pageName, visible }) => {
     
                 if (disksData.length > 0) {
                     const disksEntries: Entry[] = disksData.map((disk) => ({
+                        id: parseInt(MD5(disk.diskPath).toString().substring(0, 8), 16),
                         path: disk.diskPath,
                         name: disk.diskPath,
                         created_at: disk.minCapacity.toString(),
@@ -142,14 +134,15 @@ const FileManagerPage: React.FC<Props> = ({ pageName, visible }) => {
     };
     
 
-    const handleItemDoubleClick = (index: number) => {
-        const item = entries[index];
-        if (item.type === 'folder' || item.type === 'disk') {
+    const handleItemDoubleClick = (id: number) => {
+        console.log(id)
+        const item = entries.find((item) => item.id === id);
+        if (item && (item.type === 'folder' || item.type === 'disk')) {
             setIsPathDisk(false);
             let newPath = item.path;
             fetchData(newPath);
         }
-    };
+    };    
     
 
     return (

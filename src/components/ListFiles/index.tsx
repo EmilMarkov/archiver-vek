@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import FileItem from '../FileItem';
 import ContextMenu from '../ContextMenu';
+import { Settings } from '../../Settings';
 
 import {
     Props,
@@ -45,6 +46,14 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) 
             size: item.type === 'folder' ? '--' : (item.type === 'disk' ? `${parseInt(item.size)} GB` : formatFileSize(parseInt(item.size))),
         }));
     }, [entries]);
+
+    const filteredEntries = useMemo(() => {
+        if (Settings.isShowHiddenFolders) {
+            return formattedEntries;
+        } else {
+            return formattedEntries.filter((item) => !item.name.startsWith('.'));
+        }
+    }, [formattedEntries]);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -165,27 +174,27 @@ const ListFiles: React.FC<Props> = ({ entries, onItemDoubleClick, isPathDisk }) 
             </InfoBar>
             <DivLine />
             <ListContainer>
-                {formattedEntries.map((item, index) => (
-                    <li
-                        key={item.path}
-                        onContextMenu={(e) => e.preventDefault()}
-                        className={`FileItem ${selectedItems.includes(index) ? 'shiftSelected' : ''} ${
-                            isDragging ? 'dragging' : ''
-                        }`}
-                        onDoubleClick={() => handleItemDoubleClick(index)}
-                    >
-                        <FileItem
-                            name={item.name}
-                            creationDate={item.created_at}
-                            size={item.size}
-                            selected={selectedItems.includes(index)}
-                            onMouseDown={handleMouseDown(index)}
-                            onMouseEnter={handleMouseEnter(index)}
-                            fileNameWidth={fileNameWidth}
-                            type={item.type}
-                        />
-                    </li>
-                ))}
+                {filteredEntries.map((item, index) => (
+                        <li
+                            key={item.id}
+                            onContextMenu={(e) => e.preventDefault()}
+                            className={`FileItem ${selectedItems.includes(index) ? 'shiftSelected' : ''} ${
+                                isDragging ? 'dragging' : ''
+                            }`}
+                            onDoubleClick={() => handleItemDoubleClick(item.id)}
+                        >
+                            <FileItem
+                                name={item.name}
+                                creationDate={item.created_at}
+                                size={item.size}
+                                selected={selectedItems.includes(index)}
+                                onMouseDown={handleMouseDown(index)}
+                                onMouseEnter={handleMouseEnter(index)}
+                                fileNameWidth={fileNameWidth}
+                                type={item.type}
+                            />
+                        </li>
+                    ))}
             </ListContainer>
             <ContextMenu
                 isOpen={contextMenuOpen}
