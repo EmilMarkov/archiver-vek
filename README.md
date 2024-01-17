@@ -6,6 +6,8 @@
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
 
+![alt text](https://github.com/EmilMarkov/archiver-vek/blob/main/screen.png?raw=true)
+
 ## Используемые технологии:
 - Framework Tauri
 - Rust (Backend)
